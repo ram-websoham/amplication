@@ -1,0 +1,8 @@
+{
+  "semi": true,
+  "useTabs": false,
+  "tabWidth": 2,
+  "proseWarp": "always",
+  "printWidth": 80,
+  "singleQuote": true
+}

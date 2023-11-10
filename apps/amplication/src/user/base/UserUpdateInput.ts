@@ -11,7 +11,9 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsOptional } from "class-validator";
+import { IsString, IsOptional, ValidateNested } from "class-validator";
+import { RandomWhereUniqueInput } from "../../random/base/RandomWhereUniqueInput";
+import { Type } from "class-transformer";
 import { IsJSONValue } from "@app/custom-validators";
 import { GraphQLJSON } from "graphql-type-json";
 import { InputJsonValue } from "../../types";
@@ -50,6 +52,18 @@ class UserUpdateInput {
     nullable: true,
   })
   password?: string;
+
+  @ApiProperty({
+    required: false,
+    type: () => RandomWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => RandomWhereUniqueInput)
+  @IsOptional()
+  @Field(() => RandomWhereUniqueInput, {
+    nullable: true,
+  })
+  randoms?: RandomWhereUniqueInput | null;
 
   @ApiProperty({
     required: false,

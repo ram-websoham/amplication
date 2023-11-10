@@ -18,105 +18,95 @@ import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import * as nestAccessControl from "nest-access-control";
 import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
-import { UserService } from "../user.service";
+import { RandomService } from "../random.service";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
-import { UserCreateInput } from "./UserCreateInput";
-import { UserWhereInput } from "./UserWhereInput";
-import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
-import { UserFindManyArgs } from "./UserFindManyArgs";
-import { UserUpdateInput } from "./UserUpdateInput";
-import { User } from "./User";
+import { RandomCreateInput } from "./RandomCreateInput";
+import { RandomWhereInput } from "./RandomWhereInput";
+import { RandomWhereUniqueInput } from "./RandomWhereUniqueInput";
+import { RandomFindManyArgs } from "./RandomFindManyArgs";
+import { RandomUpdateInput } from "./RandomUpdateInput";
+import { Random } from "./Random";
 
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
-export class UserControllerBase {
+export class RandomControllerBase {
   constructor(
-    protected readonly service: UserService,
+    protected readonly service: RandomService,
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
   @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
-  @swagger.ApiCreatedResponse({ type: User })
+  @swagger.ApiCreatedResponse({ type: Random })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Random",
     action: "create",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async create(@common.Body() data: UserCreateInput): Promise<User> {
+  async create(@common.Body() data: RandomCreateInput): Promise<Random> {
     return await this.service.create({
       data: {
         ...data,
 
-        randoms: data.randoms
+        user: data.user
           ? {
-              connect: data.randoms,
+              connect: data.user,
             }
           : undefined,
       },
       select: {
         createdAt: true,
-        firstName: true,
         id: true,
-        lastName: true,
+        updatedAt: true,
 
-        randoms: {
+        user: {
           select: {
             id: true,
           },
         },
-
-        roles: true,
-        updatedAt: true,
-        username: true,
       },
     });
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
-  @swagger.ApiOkResponse({ type: [User] })
-  @ApiNestedQuery(UserFindManyArgs)
+  @swagger.ApiOkResponse({ type: [Random] })
+  @ApiNestedQuery(RandomFindManyArgs)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Random",
     action: "read",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async findMany(@common.Req() request: Request): Promise<User[]> {
-    const args = plainToClass(UserFindManyArgs, request.query);
+  async findMany(@common.Req() request: Request): Promise<Random[]> {
+    const args = plainToClass(RandomFindManyArgs, request.query);
     return this.service.findMany({
       ...args,
       select: {
         createdAt: true,
-        firstName: true,
         id: true,
-        lastName: true,
+        updatedAt: true,
 
-        randoms: {
+        user: {
           select: {
             id: true,
           },
         },
-
-        roles: true,
-        updatedAt: true,
-        username: true,
       },
     });
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Random })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Random",
     action: "read",
     possession: "own",
   })
@@ -124,25 +114,20 @@ export class UserControllerBase {
     type: errors.ForbiddenException,
   })
   async findOne(
-    @common.Param() params: UserWhereUniqueInput
-  ): Promise<User | null> {
+    @common.Param() params: RandomWhereUniqueInput
+  ): Promise<Random | null> {
     const result = await this.service.findOne({
       where: params,
       select: {
         createdAt: true,
-        firstName: true,
         id: true,
-        lastName: true,
+        updatedAt: true,
 
-        randoms: {
+        user: {
           select: {
             id: true,
           },
         },
-
-        roles: true,
-        updatedAt: true,
-        username: true,
       },
     });
     if (result === null) {
@@ -155,10 +140,10 @@ export class UserControllerBase {
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Random })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Random",
     action: "update",
     possession: "any",
   })
@@ -166,36 +151,31 @@ export class UserControllerBase {
     type: errors.ForbiddenException,
   })
   async update(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() data: UserUpdateInput
-  ): Promise<User | null> {
+    @common.Param() params: RandomWhereUniqueInput,
+    @common.Body() data: RandomUpdateInput
+  ): Promise<Random | null> {
     try {
       return await this.service.update({
         where: params,
         data: {
           ...data,
 
-          randoms: data.randoms
+          user: data.user
             ? {
-                connect: data.randoms,
+                connect: data.user,
               }
             : undefined,
         },
         select: {
           createdAt: true,
-          firstName: true,
           id: true,
-          lastName: true,
+          updatedAt: true,
 
-          randoms: {
+          user: {
             select: {
               id: true,
             },
           },
-
-          roles: true,
-          updatedAt: true,
-          username: true,
         },
       });
     } catch (error) {
@@ -209,10 +189,10 @@ export class UserControllerBase {
   }
 
   @common.Delete("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Random })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Random",
     action: "delete",
     possession: "any",
   })
@@ -220,26 +200,21 @@ export class UserControllerBase {
     type: errors.ForbiddenException,
   })
   async delete(
-    @common.Param() params: UserWhereUniqueInput
-  ): Promise<User | null> {
+    @common.Param() params: RandomWhereUniqueInput
+  ): Promise<Random | null> {
     try {
       return await this.service.delete({
         where: params,
         select: {
           createdAt: true,
-          firstName: true,
           id: true,
-          lastName: true,
+          updatedAt: true,
 
-          randoms: {
+          user: {
             select: {
               id: true,
             },
           },
-
-          roles: true,
-          updatedAt: true,
-          username: true,
         },
       });
     } catch (error) {
